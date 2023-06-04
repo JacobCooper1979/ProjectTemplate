@@ -136,7 +136,7 @@
                 Padding="20"
                 Grid.Column="1"
                 Grid.Row="3"
-                Clicked="SaveButton_Clicked"    
+                Clicked="SaveButtonClicked"    
                 />
 
     </Grid>
