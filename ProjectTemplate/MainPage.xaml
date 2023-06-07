@@ -106,25 +106,24 @@
                 Grid.Row="3"
                 Clicked="CalcButton_Clicked"
                 />
-        
+
         <!--Heading 2-->
         <Label TextColor="Cyan" Text="Payment Summary" Grid.Column="1" Grid.Row="0" Padding="10" FontSize="Medium"/>
-           
+
         <!--Payslip Summary-->
         <VerticalStackLayout Grid.Column="1" Grid.Row="1" Padding="10">
-            <Label x:Name="Placeholder" Text="Id Placeholder"/>
-            <Label Text="Name Placeholder"/>
-            <Label Text="Role Placeholder"/>
-            <Label Text="TaxThreshold Y/N Placeholder"/>
-            <Label Text="HoursWorked Placeholder"/>
-            <Label Text="Hrly Rate Placeholder"/>
-            <Label Text="GrossPay Placeholder"/>
-            <Label Text="Tax Placeholder"/>
-            <Label Text="NetPay Placeholder"/>
-            <Label Text="SuperAnnuation Placeholder"/>
-            <Label Text="Date Placeholder"/>
-            <Label Text="Time Placeholder"/>
+            <Label x:Name="Name" Text="Name Employee Name"/>
+            <Label x:Name="TaxThreshold" Text="TaxThreshold"/>
+            <Label x:Name="HoursWorked" Text="HoursWorked"/>
+            <Label x:Name="HourlyRate" Text="Hourly Rate"/>
+            <Label x:Name="GrossPay" Text="GrossPay"/>
+            <Label x:Name="NetPay" Text="NetPay"/>
+            <Label x:Name="SuperAnnuation" Text="SuperAnnuation"/>
+            <Label x:Name="Date" Text="Date"/>
+            <Label x:Name="Time" Text="Time"/>
         </VerticalStackLayout>
+
+
 
         <!--Placeholder for saved file feedback-->
         <HorizontalStackLayout Grid.Column="1" Grid.Row="2" Padding="10">

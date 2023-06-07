@@ -6,7 +6,7 @@ using System.IO;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Controls.Xaml;
 using CsvHelper.Configuration.Attributes;
-using static ProjectTemplate.MainPage;
+//using static ProjectTemplate.MainPage;
 
 namespace ProjectTemplate
 {
@@ -43,7 +43,6 @@ namespace ProjectTemplate
             sFlag = true;
         }
 
-        // Event handler for the Calculate button
         private async void CalcButton_Clicked(object sender, EventArgs e)
         {
             if (sFlag)
@@ -55,6 +54,21 @@ namespace ProjectTemplate
                 decimal grossPayment = PayCalculator.CalculateGross(CurrentdgPerson.hourlyRate, hoursWorked);
                 decimal superAmount = PayCalculator.CalculateSuperannuation(grossPayment);
 
+                // Convert taxthreshold to bool
+                bool taxThreshold = false;
+                if (string.Equals(CurrentdgPerson.taxthreshold, "Y", StringComparison.OrdinalIgnoreCase))
+                    taxThreshold = true;
+
+                // Update the Payslip Summary labels with the calculated values
+                Name.Text = CurrentdgPerson.firstName + " " + CurrentdgPerson.lastName;
+                TaxThreshold.Text = taxThreshold ? "Yes" : "No";
+                HoursWorked.Text = hoursWorked.ToString();
+                HourlyRate.Text = CurrentdgPerson.hourlyRate.ToString();
+                GrossPay.Text = grossPayment.ToString();
+                NetPay.Text = "To be calculated";
+                SuperAnnuation.Text = superAmount.ToString();
+                Date.Text = DateTime.Now.ToString("dd/MM/yyyy");
+                Time.Text = DateTime.Now.ToString("HH:mm:ss");
 
                 // Create payslip
                 Payslip payslip = new("1", CurrentdgPerson.employeeID.ToString(), grossPayment, 0, 0, superAmount);
@@ -64,12 +78,7 @@ namespace ProjectTemplate
 
                 await DisplayAlert("Success", "Payslip saved", "OK");
             }
-            else
-            {
-                await DisplayAlert("Nothing selected", "Please select an employee", "OK");
-            }
         }
-
 
 
         // Define the class for tax rates with thresholds
@@ -96,8 +105,6 @@ namespace ProjectTemplate
             [Index(3)]
             public decimal TaxRate2 { get; set; }
         }
-
-
 
         // Define the base class for a person
         public class Person
@@ -282,27 +289,15 @@ namespace ProjectTemplate
                     csv.NextRecord();
                 }
 
-                
+
                 await Task.Run(() => DisplayAlert("Success", "Payslip saved.", "OK"));
             }
             catch (Exception ex)
             {
-                
+
                 await Task.Run(() => DisplayAlert("Error", "Payslip failed to save " + ex.Message, "OK"));
             }
         }
-
-
-
-        /*// Event handler for the Save button
-        private void SaveButtonClicked(object sender, EventArgs e)
-        {
-            //Creates a new instance of Payslip
-            Payslip payslip = new("1", CurrentdgPerson.employeeID.ToString(), 0, 0, 0, 0);
-            await SavePayslipToCSV(payslip);
-            await DisplayAlert("Success", "Payslip saved", "OK");
-            ClearForm();
-        }*/
 
         // Event handler for the Save button
         private void SaveButtonClicked(object sender, EventArgs e)
@@ -340,6 +335,9 @@ namespace ProjectTemplate
 
     }
 }
+
+
+
 
 
 
