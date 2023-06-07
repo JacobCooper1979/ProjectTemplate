@@ -112,16 +112,17 @@
 
         <!--Payslip Summary-->
         <VerticalStackLayout Grid.Column="1" Grid.Row="1" Padding="10">
-            <Label x:Name="Name" Text="Name Employee Name"/>
-            <Label x:Name="TaxThreshold" Text="TaxThreshold"/>
-            <Label x:Name="HoursWorked" Text="HoursWorked"/>
+            <Label x:Name="Name" Text="Employee Name"/>
+            <Label x:Name="TaxThreshold" Text="Tax Threshold"/>
+            <Label x:Name="HoursWorked" Text="Hours Worked"/>
             <Label x:Name="HourlyRate" Text="Hourly Rate"/>
-            <Label x:Name="GrossPay" Text="GrossPay"/>
-            <Label x:Name="NetPay" Text="NetPay"/>
-            <Label x:Name="SuperAnnuation" Text="SuperAnnuation"/>
+            <Label x:Name="GrossPay" Text="Gross Pay"/>
+            <Label x:Name="NetPay" Text="Net Pay"/>
+            <Label x:Name="SuperAnnuation" Text="Super Annuation"/>
             <Label x:Name="Date" Text="Date"/>
             <Label x:Name="Time" Text="Time"/>
         </VerticalStackLayout>
+
 
 
 

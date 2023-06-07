@@ -6,7 +6,7 @@ using System.IO;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Controls.Xaml;
 using CsvHelper.Configuration.Attributes;
-//using static ProjectTemplate.MainPage;
+using System.Dynamic;
 
 namespace ProjectTemplate
 {
@@ -54,31 +54,48 @@ namespace ProjectTemplate
                 decimal grossPayment = PayCalculator.CalculateGross(CurrentdgPerson.hourlyRate, hoursWorked);
                 decimal superAmount = PayCalculator.CalculateSuperannuation(grossPayment);
 
-                // Convert taxthreshold to bool
-                bool taxThreshold = false;
-                if (string.Equals(CurrentdgPerson.taxthreshold, "Y", StringComparison.OrdinalIgnoreCase))
-                    taxThreshold = true;
+                // Calculate the tax amount
+                decimal taxAmount = CalculateTaxAmount(grossPayment, CurrentdgPerson.taxthreshold);
+
+                // Calculate the net pay
+                decimal netPay = PayCalculator.CalculateNet(grossPayment, taxAmount);
 
                 // Update the Payslip Summary labels with the calculated values
-                Name.Text = CurrentdgPerson.firstName + " " + CurrentdgPerson.lastName;
-                TaxThreshold.Text = taxThreshold ? "Yes" : "No";
-                HoursWorked.Text = hoursWorked.ToString();
-                HourlyRate.Text = CurrentdgPerson.hourlyRate.ToString();
-                GrossPay.Text = grossPayment.ToString();
-                NetPay.Text = "To be calculated";
-                SuperAnnuation.Text = superAmount.ToString();
-                Date.Text = DateTime.Now.ToString("dd/MM/yyyy");
-                Time.Text = DateTime.Now.ToString("HH:mm:ss");
+                Name.Text = "Employee Name: " + CurrentdgPerson.firstName + " " + CurrentdgPerson.lastName;
+                bool taxThreshold = IsWithinTaxThreshold(grossPayment, CurrentdgPerson.taxthreshold);
+                TaxThreshold.Text = taxThreshold ? "Tax Threshold: Yes" : "Tax Threshold: No";
+                HoursWorked.Text = "Hours Worked: " + hoursWorked.ToString();
+                HourlyRate.Text = "Hourly Rate: " + CurrentdgPerson.hourlyRate.ToString();
+                GrossPay.Text = "Gross Pay: " + grossPayment.ToString();
+                NetPay.Text = "Net Pay: " + netPay.ToString();
+                SuperAnnuation.Text = "Super Annuation: " + superAmount.ToString();
+                Date.Text = "Date: " + DateTime.Now.ToString("dd/MM/yyyy");
+                Time.Text = "Time: " + DateTime.Now.ToString("HH:mm:ss");
 
-                // Create payslip
-                Payslip payslip = new("1", CurrentdgPerson.employeeID.ToString(), grossPayment, 0, 0, superAmount);
-
-                // Save payslip to CSV
-                await SavePayslipToCSV(payslip);
-
-                await DisplayAlert("Success", "Payslip saved", "OK");
+                
             }
         }
+
+        // Calculate the tax amount based on the gross payment and tax threshold
+        private static decimal CalculateTaxAmount(decimal grossPayment, string taxThreshold)
+        {
+            decimal taxAmount = 0m;
+
+            if (IsWithinTaxThreshold(grossPayment, taxThreshold))
+            {
+                // Calculate the tax amount using the tax rate for within the threshold
+                taxAmount = grossPayment * 0.2m;
+            }
+
+            return taxAmount;
+        }
+
+        // Check if the gross payment is within the tax threshold
+        private static bool IsWithinTaxThreshold(decimal grossPayment, string taxThreshold)
+        {
+            return taxThreshold.Equals("Y", StringComparison.OrdinalIgnoreCase) && grossPayment >= 2000m;
+        }
+
 
 
         // Define the class for tax rates with thresholds
@@ -204,8 +221,6 @@ namespace ProjectTemplate
             }
         }
 
-        //ISSUE WITH FILE PERMISSIONS
-        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
         // Method for reading nothreshold csv
         public static void ReadTaxRatesFromCSV()
@@ -213,12 +228,11 @@ namespace ProjectTemplate
             string csvPath = "C:\\Users\\jacob\\Documents\\Tafe Cert 4\\c#\\Wednesday_Shaun_OOP\\Assesments\\Project_14June\\TaxMaui\\ProjectTemplate\\taxrate-nothreshold.csv";
             ObservableCollection<TaxRate> taxRates;
 
-            using var reader = new StreamReader(csvPath);
-            using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
-
-            // Read the CSV records into the taxRates collection
+            using var csv = new CsvReader(new StreamReader(csvPath), CultureInfo.InvariantCulture);
             taxRates = new ObservableCollection<TaxRate>(csv.GetRecords<TaxRate>());
         }
+
+
 
         // Method for reading withinthreshold csv
         public static void ReadTaxRatesWithThresholdFromCSV()
@@ -226,18 +240,16 @@ namespace ProjectTemplate
             string csvPath = "C:\\Users\\jacob\\Documents\\Tafe Cert 4\\c#\\Wednesday_Shaun_OOP\\Assesments\\Project_14June\\TaxMaui\\ProjectTemplate\\taxrate-withthreshold.csv";
             ObservableCollection<TaxRateWithThreshold> taxRatesWithThreshold;
 
-            using var reader = new StreamReader(csvPath);
-            using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
-
-            // Read the CSV records into the taxRatesWithThreshold collection
+            using var csv = new CsvReader(new StreamReader(csvPath), CultureInfo.InvariantCulture);
             taxRatesWithThreshold = new ObservableCollection<TaxRateWithThreshold>(csv.GetRecords<TaxRateWithThreshold>());
         }
 
 
+        //Defines the class for PayCalculator
         public class PayCalculator
         {
             // 15% superannuation rate
-            private const decimal SuperRate = 0.15m;
+            private const decimal SuperRate = 0.10m;
 
             // Calculate the superannuation amount based on the gross payment
             public static decimal CalculateSuperannuation(decimal grossPayment)
@@ -259,25 +271,14 @@ namespace ProjectTemplate
         }
 
         // Method to save the payslip to CSV
-        private async Task SavePayslipToCSV(Payslip payslip)
+        private void SavePayslipToCSV(Payslip payslip)
         {
-            string csvPath = "payslips.csv";
-
             try
             {
-                using (var writer = new StreamWriter(csvPath, true))
+                string filename = @"C:\Users\jacob\Documents\Tafe Cert 4\c#\Wednesday_Shaun_OOP\Assesments\Project_14June\TaxMaui\ProjectTemplate\Payslips.csv";
+                using (StreamWriter writer = new StreamWriter(filename, true))
                 using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
                 {
-                    // Check if the CSV file exists
-                    bool fileExists = File.Exists(csvPath);
-
-                    // Write the CSV headers if the file doesn't exist
-                    if (!fileExists)
-                    {
-                        csv.WriteHeader<Payslip>();
-                        csv.NextRecord();
-                    }
-
                     // Write the payslip values to the CSV
                     csv.WriteField(payslip.Id);
                     csv.WriteField(payslip.EmployeeId);
@@ -289,59 +290,55 @@ namespace ProjectTemplate
                     csv.NextRecord();
                 }
 
-
-                await Task.Run(() => DisplayAlert("Success", "Payslip saved.", "OK"));
+                DisplayAlert("Success", "Payslip saved.", "OK");
             }
             catch (Exception ex)
             {
-
-                await Task.Run(() => DisplayAlert("Error", "Payslip failed to save " + ex.Message, "OK"));
+                DisplayAlert("Error", "Payslip failed to save " + ex.Message, "OK");
             }
         }
+
 
         // Event handler for the Save button
         private void SaveButtonClicked(object sender, EventArgs e)
         {
-            // Creates a new instance of Payslip
-            Payslip payslip = new("1", CurrentdgPerson.employeeID.ToString(), 0, 0, 0, 0);
-
-            SavePayslipToCSV(payslip).ContinueWith(task =>
+            if (sFlag)
             {
-                if (task.IsCompletedSuccessfully)
-                {
-                    this.Dispatcher.Dispatch(() =>
-                    {
-                        DisplayAlert("Success", "Payslip saved", "OK");
-                        ClearForm();
-                    });
-                }
-                else
-                {
-                    this.Dispatcher.Dispatch(() =>
-                    {
-                        DisplayAlert("Error", "Failed to save payslip", "OK");
-                    });
-                }
-            });
+                // Get user input
+                var hoursWorked = Convert.ToDecimal(hrsEntered.Text);
+
+                // Perform calculations
+                decimal grossPayment = PayCalculator.CalculateGross(CurrentdgPerson.hourlyRate, hoursWorked);
+                decimal superAmount = PayCalculator.CalculateSuperannuation(grossPayment);
+
+                // Calculate the tax amount 
+                decimal taxAmount = grossPayment * 0.2m;
+
+                // Convert taxthreshold to bool
+                bool taxThreshold = false;
+                if (string.Equals(CurrentdgPerson.taxthreshold, "Y", StringComparison.OrdinalIgnoreCase))
+                    taxThreshold = true;
+
+                // Calculate the net pay
+                decimal netPay = PayCalculator.CalculateNet(grossPayment, taxAmount);
+
+                // Update the Payslip Summary labels with the calculated values
+                Name.Text = "Employee Name: " + CurrentdgPerson.firstName + " " + CurrentdgPerson.lastName;
+                TaxThreshold.Text = taxThreshold ? "Tax Threshold: Yes" : "Tax Threshold: No";
+                HoursWorked.Text = "Hours Worked: " + hoursWorked.ToString();
+                HourlyRate.Text = "Hourly Rate: " + CurrentdgPerson.hourlyRate.ToString();
+                GrossPay.Text = "Gross Pay: " + grossPayment.ToString();
+                NetPay.Text = "Net Pay: " + netPay.ToString();
+                SuperAnnuation.Text = "Super Annuation: " + superAmount.ToString();
+                Date.Text = "Date: " + DateTime.Now.ToString("dd/MM/yyyy");
+                Time.Text = "Time: " + DateTime.Now.ToString("HH:mm:ss");
+
+                // Create and save the payslip
+                Payslip payslip = new("1", CurrentdgPerson.employeeID.ToString(), grossPayment, netPay, taxAmount, superAmount);
+                SavePayslipToCSV(payslip);
+            }
         }
-
-
-        //Method for clearing the form
-        private void ClearForm()
-        {
-            hrsEntered.Text = string.Empty;
-        }
-
-
     }
 }
-
-
-
-
-
-
-
-
 
 
