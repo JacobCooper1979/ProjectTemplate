@@ -13,9 +13,12 @@ namespace ProjectTemplate
     public partial class MainPage : ContentPage
     {
         public CsvMap CurrentdgPerson = new();
-        // Flag to indicate if an item is selected
         public bool sFlag = false;
 
+        /// <summary>
+        /// Initializes the application
+        /// </summary>
+        /// <param name="viewModel"></param>
         public MainPage(MainPageViewModel viewModel)
         {
             InitializeComponent();
@@ -25,7 +28,11 @@ namespace ProjectTemplate
             ReadTaxRatesFromCSV();
         }
 
-        // Event handler for selecting a data grid item
+        /// <summary>
+        /// Event handler for selecting a data grid item
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void PersonView_ItemSelected(object sender, SelectionChangedEventArgs e)
         {
             // Get the selected item from the data grid
@@ -43,6 +50,11 @@ namespace ProjectTemplate
             sFlag = true;
         }
 
+        /// <summary>
+        /// Method for the calculator button when clicked 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private async void CalcButton_Clicked(object sender, EventArgs e)
         {
             if (sFlag)
@@ -76,7 +88,12 @@ namespace ProjectTemplate
             }
         }
 
-        // Calculate the tax amount based on the gross payment and tax threshold
+        /// <summary>
+        /// Calculate the tax amount based on the gross payment and tax threshold
+        /// </summary>
+        /// <param name="grossPayment"></param>
+        /// <param name="taxThreshold"></param>
+        /// <returns></returns>
         private static decimal CalculateTaxAmount(decimal grossPayment, string taxThreshold)
         {
             decimal taxAmount = 0m;
@@ -90,7 +107,12 @@ namespace ProjectTemplate
             return taxAmount;
         }
 
-        // Check if the gross payment is within the tax threshold
+        /// <summary>
+        /// Check if the gross payment is within the tax threshold
+        /// </summary>
+        /// <param name="grossPayment"></param>
+        /// <param name="taxThreshold"></param>
+        /// <returns></returns>
         private static bool IsWithinTaxThreshold(decimal grossPayment, string taxThreshold)
         {
             return taxThreshold.Equals("Y", StringComparison.OrdinalIgnoreCase) && grossPayment >= 2000m;
@@ -98,7 +120,9 @@ namespace ProjectTemplate
 
 
 
-        // Define the class for tax rates with thresholds
+        /// <summary>
+        /// Define the class for tax rates with thresholds
+        /// </summary>
         public class TaxRateWithThreshold
         {
             public decimal Low { get; set; }
@@ -107,7 +131,9 @@ namespace ProjectTemplate
             public decimal TaxRate2 { get; set; }
         }
 
-        // Define the class for tax rates
+        /// <summary>
+        /// Define the class for tax rates
+        /// </summary>
         public class TaxRate
         {
             [Index(0)]
@@ -123,7 +149,9 @@ namespace ProjectTemplate
             public decimal TaxRate2 { get; set; }
         }
 
-        // Define the base class for a person
+        /// <summary>
+        ///  Define the base class for a person
+        /// </summary>
         public class Person
         {
             public string Id { get; set; }
@@ -138,7 +166,9 @@ namespace ProjectTemplate
             }
         }
 
-        // Define the derived class for an employee
+        /// <summary>
+        /// Define the derived class for an employee
+        /// </summary>
         public class Employee : Person
         {
             private readonly decimal hourlyRate;
@@ -152,14 +182,19 @@ namespace ProjectTemplate
             }
 
 
-            //Calculates the total gross payment
+            /// <summary>
+            /// Calculates the total gross payment
+            /// </summary>
+            /// <returns></returns>
             public decimal CalculateGross()
             {
                 return hourlyRate * hoursWorked;
             }
         }
 
-        // Define the class for a payslip
+        /// <summary>
+        /// Define the class for a payslip
+        /// </summary>
         public class Payslip
         {
             private readonly string id;
@@ -222,7 +257,9 @@ namespace ProjectTemplate
         }
 
 
-        // Method for reading nothreshold csv
+        /// <summary>
+        /// Method for reading nothreshold csv
+        /// </summary>
         public static void ReadTaxRatesFromCSV()
         {
             string csvPath = "C:\\Users\\jacob\\Documents\\Tafe Cert 4\\c#\\Wednesday_Shaun_OOP\\Assesments\\Project_14June\\TaxMaui\\ProjectTemplate\\taxrate-nothreshold.csv";
@@ -234,7 +271,9 @@ namespace ProjectTemplate
 
 
 
-        // Method for reading withinthreshold csv
+        /// <summary>
+        /// Method for reading withinthreshold csv
+        /// </summary>
         public static void ReadTaxRatesWithThresholdFromCSV()
         {
             string csvPath = "C:\\Users\\jacob\\Documents\\Tafe Cert 4\\c#\\Wednesday_Shaun_OOP\\Assesments\\Project_14June\\TaxMaui\\ProjectTemplate\\taxrate-withthreshold.csv";
@@ -245,32 +284,53 @@ namespace ProjectTemplate
         }
 
 
-        //Defines the class for PayCalculator
+        /// <summary>
+        /// Defines the class for PayCalculator
+        /// </summary>
         public class PayCalculator
         {
-            // 15% superannuation rate
+            /// <summary>
+            /// 10% superannuation rate
+            /// </summary>
             private const decimal SuperRate = 0.10m;
 
-            // Calculate the superannuation amount based on the gross payment
+            /// <summary>
+            /// Calculate the superannuation amount based on the gross payment
+            /// </summary>
+            /// <param name="grossPayment"></param>
+            /// <returns></returns>
             public static decimal CalculateSuperannuation(decimal grossPayment)
             {
                 return grossPayment * SuperRate;
             }
 
-            // Calculate the gross pay based on the hourly rate and hours worked
+            /// <summary>
+            /// Calculate the gross pay based on the hourly rate and hours worked
+            /// </summary>
+            /// <param name="hourlyRate"></param>
+            /// <param name="hoursWorked"></param>
+            /// <returns></returns>
             public static decimal CalculateGross(decimal hourlyRate, decimal hoursWorked)
             {
                 return hourlyRate * hoursWorked;
             }
 
-            // Calculate the net pay
+            /// <summary>
+            /// Calculate the net pay
+            /// </summary>
+            /// <param name="grossPayment"></param>
+            /// <param name="taxAmount"></param>
+            /// <returns></returns>
             public static decimal CalculateNet(decimal grossPayment, decimal taxAmount)
             {
                 return grossPayment - taxAmount;
             }
         }
 
-        // Method to save the payslip to CSV
+        /// <summary>
+        /// Method to save the payslip to CSV
+        /// </summary>
+        /// <param name="payslip"></param>
         private void SavePayslipToCSV(Payslip payslip)
         {
             try
@@ -299,7 +359,11 @@ namespace ProjectTemplate
         }
 
 
-        // Event handler for the Save button
+        /// <summary>
+        /// Event handler for the Save button
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void SaveButtonClicked(object sender, EventArgs e)
         {
             if (sFlag)
